@@ -1,4 +1,5 @@
 #用分治法求最大增加值
+#leetcode 53 最大子序和
 lis_dec = [1,2]
 def find_cross_max(Array, low, mid, high):
     lt_sum = Array[mid]
