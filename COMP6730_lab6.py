@@ -1,3 +1,4 @@
+'''
 import csv
 import matplotlib.pyplot as mpl
 import os
@@ -40,3 +41,9 @@ mpl.bar(x,y,color = cm.rainbow([ i/len(data_com) for i in range(len(data_com))])
 mpl.xlabel('years')
 mpl.ylabel('ave_temp')
 mpl.show()
+'''
+import pandas as pd
+df = pd.read_csv("C:\\Users\\Administrator\\Desktop\\COMP6730\\covid-data\\covid-data\\09-14-2021.csv")
+df_sum = df.groupby('Country_Region')['Confirmed'].sum()
+print(df_sum)
+df_sum.to_xarray()

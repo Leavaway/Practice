@@ -1,42 +1,127 @@
-import csv
-import matplotlib.pyplot as mpl
-import os
-from numpy import *
-from matplotlib.pyplot import cm
-os.chdir('C:\\Users\\Administrator\\Desktop\\COMP6730')
-with open("daily-max-temp-CBR.csv") as csvfile:
-    reader = csv.reader(csvfile)
-    data_max = [ [row[2],row[3],row[4],row[5]] for row in reader if row[3]>= '06' and row[3]<='08']
-    
-# print(data_max)
-print(len(data_max))
-with open("daily-min-temp-CBR.csv") as csvfile:
-    reader = csv.reader(csvfile)
-    data_min = [ [row[2],row[3],row[4],row[5]] for row in reader if row[3]>= '06' and row[3]<='08']
-    
-print('-----')
+# COMP1730/6730 S2 2021 - Homework 5
+# Submission is due 11:55pm, Friday the 1st of October, 2021.
 
-data_avg = []
-# print(data_min)
-print(len(data_min))
-for i in range(len(data_max)-1):
-    if data_max[i][0:3] == data_min[i][0:3]:
-        if data_max[i][3] != '' and data_min[i][3] != '':
-            data_avg.append(data_max[i][0:3]+[round((float(data_max[i][3])+float(data_min[i][3]))/2,2)])
-data_com = []
-for i in range(2008,2022):
-    total_date = 0
-    sum = 0
-    for x in data_avg:
-        if i == int(x[0]):
-            total_date+=1
-            sum+=x[3]
-    if total_date!=0:
-        data_com.append([i]+[round(sum/total_date,2)])
-print(data_com)
-x = [i[0] for i in data_com]
-y = [i[1] for i in data_com]
-mpl.bar(x,y,color = cm.rainbow([ i/len(data_com) for i in range(len(data_com))]))
-mpl.xlabel('years')
-mpl.ylabel('ave_temp')
-mpl.show()
+# YOUR ANU ID: uNNNNNNN
+# YOUR NAME:
+
+# Implement the function average_rank below.
+# (The statement "pass" is just a placeholder that does nothing: you
+# should replace it.)
+# You can define other functions if it helps you decompose the problem
+# and write a better organised and/or more readable solution.
+
+def average_rank(table):
+    '''
+    Parameters
+    ----------
+    table : The list with some lists which has same length.
+
+    Returns
+    -------
+    answer : return a list contains the average rank
+    '''
+    models_table = []
+    for i in range(len(table[0])):
+        t1 = []
+        for x in range(len(table)):
+            t1.append(table[x][i])
+        models_table.append(t1)
+    for i in table:
+        i.sort()
+        i.reverse()
+    avg = 0
+    final = []
+    # for i in range(len(t)):
+    #     for x in range(len(t[i])):
+    #         avg += table[x].index(t[i][x]) +1
+    #     final.append(avg/len(t[i]))
+    #     avg = 0
+    for i in range(len(models_table)):
+        for x in range(len(models_table[i])):
+            index_count = 0
+            count = 0
+            for y in table[x]:
+                if models_table[i][x] == y:
+                    index_count += table[x].index(models_table[i][x]) +1 + count
+                    count += 1
+            avg += index_count/count
+        final.append(avg/len(models_table[i]))
+        avg = 0
+    return final
+def test_average_rank_set1():
+    '''
+    This function runs a number of tests of the average_rank function.
+    If it works ok, you will just see the output ("all set 1 tests passed")
+    at the end when you call this function; if some test fails, there will
+    be an error message.
+
+    This function runs the first (simplest) set of tests; function
+    test_set_2 below runs some more complicated tests.
+    '''
+
+    # two simple tests with three columns and three rows
+    T1 = [[2,4,6], 
+          [1,4,9], 
+          [3,6,9]]
+    assert allclose(average_rank(T1), [3,2,1])
+    T2 = [[2,4,6], 
+          [4,6,2], 
+          [6,2,4]]
+    assert allclose(average_rank(T2), [2,2,2])
+    # more rows
+    T3 = [[2,4,6], [-1,0,1], [4,6,2], [0,-1,1], [6,2,4]]
+    assert allclose(average_rank(T3), [(1+3+2+2+3)/5,(2+2+3+3+1)/5,(3+1+1+1+2)/5])
+    # floating point values:
+    import math
+    T4 = [[math.pi/4,math.pi/2,math.pi], [math.pi/2,math.pi,math.pi/4],
+          [3*math.pi,math.pi,2*math.pi]]
+    assert allclose(average_rank(T4), [2,2,2])
+    # if there are no columns, returned list should be empty
+    assert average_rank([[]]) == []
+    print("all set 1 tests passed")
+
+def test_average_rank_set2():
+    '''
+    This function runs a number of tests of the average_rank function.
+    If it works ok, you will just see the output ("all set 1 tests passed")
+    at the end when you call this function; if some test fails, there will
+    be an error message.
+
+    This function runs the second (more complex) set of tests.
+    '''
+    # some examples with ties
+    T1 = [[2,2,6,6], [4,4,4,4]]
+    assert allclose(average_rank(T1), [3,3,2,2])
+    T2 = [[0,0,0,0], [1,1,1,1], [1.5,1.5,1.5,1.5]]
+    assert allclose(average_rank(T2), [2.5,2.5,2.5,2.5])
+    T3 = [[0,0,0,0], [1,1,1,1], [1.5,1.6,1.5,1.5]]
+    assert allclose(average_rank(T3), [8/3,2,8/3,8/3])
+    # example from the data science lecture:
+    model_data = [[40,571,353,9,95,41,1428,350],
+                  [16,200,108,2,495,434,88,0],
+                  [7,352,216,9,1201,1897,9,0],
+                  [10,187,202,280,704,215,47,0],
+                  [52,616,204,2,47,17,122,5],
+                  [4,147,146,0,3646,536,0,0],
+                  [80,914,373,4,45,2,161,60],
+                  [67,406,778,1,9,2,3,30],
+                  [52,635,303,1,5,0,5,860],
+                  [121,712,595,0,19,0,1,53],
+                  [51,1914,449,0,29,18,4,50]]
+    flipped = [[row[c] for row in model_data] for c in range(len(model_data[0]))]
+    assert allclose(average_rank(flipped), [4.1875, 6.75, 5.75, 6.3125, 5.75, 8.1875, 4.0625, 6.5, 6.4375, 6.1875, 5.875])
+    print("all set 2 tests passed")
+    
+def allclose(s1, s2):
+    '''
+    Compare two numeric sequences of equal length, and return True
+    iff they are sufficiently close (< 10^-6 difference) in each
+    position.
+    '''
+    assert len(s1) == len(s2)
+    return all([abs(s1[i] - s2[i]) < 1e-6 for i in range(len(s1))])
+
+
+
+test_average_rank_set1()
+test_average_rank_set2()
